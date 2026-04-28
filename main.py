@@ -2,6 +2,7 @@ import os
 import requests
 import schedule
 import time
+from datetime import datetime
 import google.generativeai as genai
 from dotenv import load_dotenv
 
@@ -94,16 +95,24 @@ def daily_job():
     
     send_to_telegram(final_message)
 
-# Schedule for 7:00 AM (Aap isse change bhi kar sakte hain)
-schedule.every().day.at("07:00").do(daily_job)
+SCHEDULE_TIME = "17:54"  # Change this to update the daily send time
+
+# Schedule for 7:00 AM
+schedule.every().day.at(SCHEDULE_TIME).do(daily_job)
 
 if __name__ == "__main__":
     print("Bot is starting... (Press Ctrl+C to stop)")
-    print(f"Scheduled every day at 07:00 AM. Waiting for next run...")
-    
-    # For testing, uncomment the line below to run it immediately once
-    # daily_job() 
+    print(f"Scheduled every day at {SCHEDULE_TIME} AM. Waiting for next run...")
 
+    # ✅ Catch-up check: If script starts AFTER scheduled time today, run immediately
+    now = datetime.now()
+    scheduled_hour, scheduled_minute = map(int, SCHEDULE_TIME.split(':'))
+    scheduled_today = now.replace(hour=scheduled_hour, minute=scheduled_minute, second=0, microsecond=0)
+
+    if now > scheduled_today:
+        print(f"⚠️  Script started after {SCHEDULE_TIME} — running job now to catch up!")
+        daily_job()
+    
     while True:
         schedule.run_pending()
-        time.sleep(60) # Watch every minute
+        time.sleep(60)  # Check every minute
