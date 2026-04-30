@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The News Room - Aaj ki Taaza Khabrein</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="light-theme">
+    <header>
+        <div class="container">
+            <div class="nav-top">
+                <a href="/" class="logo">
+                    <span class="icon">📰</span>
+                    <h1>The News <span>Room</span></h1>
+                </a>
+                <button id="themeToggle" class="theme-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            
+            <p class="tagline">AI द्वारा संकलित आज की मुख्य खबरें</p>
+            
+            <div class="search-container">
+                <form action="/search" method="GET">
+                    <input type="text" name="q" placeholder="News search karein..." required>
+                    <button type="submit"><i class="fas fa-search"></i> Search</button>
+                </form>
+            </div>
+
+            <div class="filters">
+                <a href="/?cat=india" class="filter-btn"><i class="fas fa-flag"></i> भारत (India)</a>
+                <a href="/?cat=world" class="filter-btn"><i class="fas fa-globe"></i> विदेश (World)</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2 class="section-title">{{ title }}</h2>
+        <div class="news-grid" id="newsGrid">
+            {% for item in news %}
+            <div class="news-card">
+                <div class="card-image" style="background-image: url('{{ item.image }}')">
+                    <span class="source-tag">{{ item.source }}</span>
+                </div>
+                <div class="card-content">
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.summary }}</p>
+                    <a href="{{ item.url }}" target="_blank" class="read-more">
+                        पूरा पढ़ें <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="no-news">
+                <p>आज की खबरें लोड हो रही हैं... कृपया प्रतीक्षा करें।</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 The News Room | Made with ❤️</p>
+            <div class="social-links">
+                <a href="#" class="telegram-badge"><i class="fab fa-telegram"></i> Telegram Active</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle Logic
+        const themeBtn = document.getElementById('themeToggle');
+        const body = document.body;
+        const icon = themeBtn.querySelector('i');
+
+        // Check for saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light-theme';
+        body.className = savedTheme;
+        updateIcon();
+
+        themeBtn.addEventListener('click', () => {
+            if (body.classList.contains('light-theme')) {
+                body.className = 'dark-theme';
+                localStorage.setItem('theme', 'dark-theme');
+            } else {
+                body.className = 'light-theme';
+                localStorage.setItem('theme', 'light-theme');
+            }
+            updateIcon();
+        });
+
+        function updateIcon() {
+            if (body.classList.contains('dark-theme')) {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        // Auto Refresh (1 Hour)
+        setInterval(() => { location.reload(); }, 3600000);
+
+        // Animation Delay
+        document.querySelectorAll('.news-card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>
