@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 # Load API Keys
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.', static_folder='.')
 
 # Config
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
