@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The News Room - Article</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .article-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+        body.dark-theme .article-container {
+            background: var(--card-dark);
+            color: var(--text-dark);
+        }
+        .article-content {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #334155;
+            white-space: pre-wrap;
+        }
+        body.dark-theme .article-content {
+            color: #cbd5e1;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .original-link {
+            display: block;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <header style="padding: 30px 0; border-radius: 0 0 30px 30px;">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="icon">📰</span>
+                <h1>The News <span>Room</span></h1>
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="article-container">
+            <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            
+            <div class="article-content">
+                {{ content }}
+            </div>
+
+            <a href="{{ original_url }}" target="_blank" class="original-link">
+                <i class="fas fa-external-link-alt"></i> View Original Source
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // Check for saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light-theme';
+        document.body.className = savedTheme;
+    </script>
+</body>
+</html>

@@ -1,6 +1,5 @@
-python-telegram-bot
+flask
 requests
 python-dotenv
 google-generativeai
-schedule
-flask
+beautifulsoup4

@@ -29,11 +29,6 @@
                     <button type="submit"><i class="fas fa-search"></i> Search</button>
                 </form>
             </div>
-
-            <div class="filters">
-                <a href="/?cat=india" class="filter-btn"><i class="fas fa-flag"></i> भारत (India)</a>
-                <a href="/?cat=world" class="filter-btn"><i class="fas fa-globe"></i> विदेश (World)</a>
-            </div>
         </div>
     </header>
 
@@ -48,7 +43,7 @@
                 <div class="card-content">
                     <h3>{{ item.title }}</h3>
                     <p>{{ item.summary }}</p>
-                    <a href="{{ item.url }}" target="_blank" class="read-more">
+                    <a href="/article?url={{ item.url }}" target="_blank" class="read-more">
                         पूरा पढ़ें <i class="fas fa-external-link-alt"></i>
                     </a>
                 </div>
