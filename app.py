@@ -19,7 +19,7 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # BASE_URL for Telegram links (Change this when deploying)
-BASE_URL = "http://127.0.0.1:5000"
+BASE_URL = "http://aslamMansuri2002.pythonanywhere.com"
 
 # Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
@@ -62,16 +62,19 @@ def send_to_telegram(news):
     except Exception as e:
         print(f"Telegram error: {e}")
 
-def get_news(limit=12):
-    """Fetch LATEST Top Headlines from NewsAPI"""
+def get_news(limit=6):
+    """Fetch LATEST Top Headlines (Reduced limit for speed)"""
     headers = {"User-Agent": "Mozilla/5.0"}
     url = f"https://newsapi.org/v2/top-headlines?country=in&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
     try:
-        res = requests.get(url, headers=headers).json()
+        print(f"Fetching news from NewsAPI (Limit: {limit})...")
+        res = requests.get(url, headers=headers, timeout=10).json()
         articles = res.get('articles', [])
+        
         if not articles:
+            print("India news empty, trying global...")
             url_world = f"https://newsapi.org/v2/top-headlines?language=en&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
-            articles = requests.get(url_world, headers=headers).json().get('articles', [])
+            articles = requests.get(url_world, headers=headers, timeout=10).json().get('articles', [])
             
         new_articles = []
         for art in articles:
@@ -81,41 +84,53 @@ def get_news(limit=12):
                 seen_articles.add(title)
                 if len(new_articles) >= limit: break
         
-        if len(seen_articles) > 100: seen_articles.clear()
+        if len(seen_articles) > 50: seen_articles.clear()
         return new_articles if new_articles else articles[:limit]
-    except: return []
+    except Exception as e:
+        print(f"NewsAPI error: {e}")
+        return []
 
 def summarize_for_web(articles):
     if not articles: return []
+    print(f"Summarizing {len(articles)} articles with Gemini AI...")
+    
     full_prompt = "Summarize the following into HINDI. Headline: [Hindi] Summary: [Hindi] ---\n\n"
     for i, art in enumerate(articles):
         full_prompt += f"Item {i}:\nTitle: {art['title']}\nDescription: {art.get('description', 'N/A')}\n\n"
     
     summarized_list = []
     try:
-        response = model.generate_content(full_prompt)
+        # Added 15s timeout to avoid hanging
+        response = model.generate_content(full_prompt, request_options={"timeout": 15})
         parts = response.text.split('---')
         for i, part in enumerate(parts):
             if i >= len(articles): break
             lines = part.strip().split('\n')
-            h, s = articles[i]['title'], articles[i].get('description', 'N/A')
+            h, s = articles[i]['title'], articles[i].get('description', 'विवरण उपलब्ध नहीं है।')
             for line in lines:
                 if "Headline:" in line: h = line.replace("Headline:", "").strip()
                 if "Summary:" in line: s = line.replace("Summary:", "").strip()
             summarized_list.append({
                 "title": h, "summary": s, "url": articles[i].get('url', '#'),
                 "image": articles[i].get('urlToImage', 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=1000'),
-                "source": articles[i].get('source', {}).get('name', 'News')
+                "source": articles[i].get('source', {}).get('name', 'Breaking News')
             })
-    except:
+    except Exception as e:
+        print(f"Gemini AI error or timeout: {e}. Using raw news fallback.")
         for art in articles:
-            summarized_list.append({"title": art['title'], "summary": art.get('description', 'N/A'), "url": art['url'], "image": art.get('urlToImage', ''), "source": art.get('source', {}).get('name', 'News')})
+            summarized_list.append({
+                "title": art['title'], 
+                "summary": art.get('description', 'No AI summary available.')[:150] + "...", 
+                "url": art.get('url', '#'), 
+                "image": art.get('urlToImage', 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=1000'), 
+                "source": art.get('source', {}).get('name', 'News')
+            })
     return summarized_list
 
 @app.route('/')
 def index():
     raw_news = get_news()
-    title = "🇮🇳 Bharat ki Khabrein"
+    title = "🇮🇳 Bharat ki Sabse Taaza Khabrein"
     news_items = summarize_for_web(raw_news)
     return render_template('index.html', news=news_items, title=title)
 
@@ -133,7 +148,10 @@ def search():
     query = request.args.get('q', '')
     if not query: return index()
     url = f"https://newsapi.org/v2/everything?q={query}&language=en&sortBy=publishedAt&pageSize=12&apiKey={NEWS_API_KEY}"
-    raw_news = requests.get(url).json().get('articles', [])
+    try:
+        raw_news = requests.get(url, timeout=10).json().get('articles', [])
+    except:
+        raw_news = []
     news_items = summarize_for_web(raw_news)
     return render_template('index.html', news=news_items, title=f"Results: {query}")
 
