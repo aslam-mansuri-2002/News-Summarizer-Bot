@@ -3,80 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The News Room - Article</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Reader Mode | The News Room</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Serif+Devanagari:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        .article-container {
-            max-width: 800px;
-            margin: 40px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
         }
-        body.dark-theme .article-container {
-            background: var(--card-dark);
-            color: var(--text-dark);
-        }
-        .article-content {
-            font-size: 1.15rem;
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
             line-height: 1.8;
-            color: #334155;
-            white-space: pre-wrap;
         }
-        body.dark-theme .article-content {
-            color: #cbd5e1;
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
+
         .back-btn {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            text-decoration: none;
+            gap: 8px;
             color: var(--primary);
+            text-decoration: none;
             font-weight: 600;
             margin-bottom: 30px;
+            transition: 0.3s;
         }
-        .original-link {
-            display: block;
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+        }
+
+        .ai-summary-card {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.2);
+        }
+
+        .ai-summary-card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+        }
+
+        .summary-text {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            white-space: pre-line;
+        }
+
+        .full-content {
+            font-family: 'Noto Serif Devanagari', serif;
+            font-size: 1.25rem;
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .full-content p {
+            margin-bottom: 25px;
+        }
+
+        .footer-info {
             margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            color: var(--gray);
-            text-decoration: none;
-            font-size: 0.9rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .full-content { padding: 25px; font-size: 1.1rem; }
         }
     </style>
 </head>
-<body class="light-theme">
-    <header style="padding: 30px 0; border-radius: 0 0 30px 30px;">
-        <div class="container">
-            <a href="/" class="logo">
-                <span class="icon">📰</span>
-                <h1>The News <span>Room</span></h1>
-            </a>
-        </div>
-    </header>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> वापस Dashboard पर</a>
 
-    <main class="container">
-        <div class="article-container">
-            <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
-            
-            <div class="article-content">
-                {{ content }}
+        <div class="ai-summary-card">
+            <h3><i class="fas fa-robot"></i> AI Highlights (Hindi)</h3>
+            <div class="summary-text">
+                {{ summary }}
             </div>
-
-            <a href="{{ original_url }}" target="_blank" class="original-link">
-                <i class="fas fa-external-link-alt"></i> View Original Source
-            </a>
         </div>
-    </main>
 
-    <script>
-        // Check for saved theme
-        const savedTheme = localStorage.getItem('theme') || 'light-theme';
-        document.body.className = savedTheme;
-    </script>
+        <div class="full-content">
+            {{ content | replace('\n', '<br>') | safe }}
+        </div>
+
+        <div class="footer-info">
+            <p>Original URL: <a href="{{ original_url }}" target="_blank">{{ original_url[:50] }}...</a></p>
+        </div>
+    </div>
 </body>
 </html>
